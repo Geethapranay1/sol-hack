@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Creator{
+    id               String     @id @default(uuid())
+    username         String     @unique
+    displayName      String
+    avatarUrl        String?
+    totalContent     Int
+    totalReviews     Int
+    totalViewers     Int
+    myContent        Post[]     @relation("MyContent")
+    famousContent    Post[]     @relation("FamousContent")
+    wallet           Wallet[]
+}
+
+model Wallet {
+  id        String     @id @default(uuid())
+  network   String
+  address   String
+  userId    String
+  user      Creator    @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id                String        @id @default(uuid())
+  title             String
+  averageRating     Float
+  review            Int
+  contentShared     Int
+  views             Int           @default(0)
+  createdAt         DateTime      @default(now())
+  upadatedAt        DateTime      @updatedAt
+  author            Creator       @relation("MyContent", fields: [authorId], references: [id])
+  authorId          String
+  famousContent     Creator?      @relation("FamousContent", fields: [famousId], references: [id])
+  famousId          String?
+  catagories        Catagory[]
+
+}
+
+
+
+model Catagory {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
+}
+
